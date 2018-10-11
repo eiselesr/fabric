@@ -3,7 +3,14 @@ import fabric.operations as fop
 from hosts import *
 import time
 
+#fabi.env.password="sd-writer"
+#fabi.env.user="sd-writer"
+
+#fabi.env.password="riaps"
+#fabi.env.user="riaps"
+
 fabi.env.key_filename = '~/.ssh/cluster_2018_9_10'
+fabi.env.port = 222
 
 fabi.env.skip_bad_hosts = True
 fabi.env.warn_only = True
@@ -36,6 +43,6 @@ def pput(src,dst):
 	fabi.put(src, dst)
 
 def LED():
-	fabi.run('echo 1 >> /sys/class/leds/beaglebone\:green\:usr2/brightness')
-	time.sleep(5)
-	fabi.run('echo 0 >> /sys/class/leds/beaglebone\:green\:usr2/brightness')
+        fabi.run('echo 1 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr2/brightness')
+        time.sleep(5)
+        fabi.run('echo 0 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr2/brightness')

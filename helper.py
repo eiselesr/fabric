@@ -2,6 +2,8 @@
 
 import fabric.api as fabi
 import paramiko
+import socket
+from collections import OrderedDict
 
 fabi.env.key_filename = '~/.ssh/cluster_2018_9_10'
 
@@ -9,6 +11,7 @@ fabi.env.skip_bad_hosts = True
 fabi.env.warn_only=True
 fabi.env.abort_on_prompts=True
 
+fabi.env.port=222
 
 def runCommand(command):
     """run with fab -R '<role to run command on, e.g c2_1>' runCommand:<command to run>
@@ -20,7 +23,7 @@ def runCommand(command):
 
 @fabi.task
 def discoverHosts ():
-    out = fabi.local("sudo arp-scan -I enp0s3 --localnet", capture=True).rsplit("\n")
+    out = fabi.local("sudo arp-scan -I enp0s8 --localnet", capture=True).rsplit("\n")
     print("out")
     print(out)
     devices = out[2:-3]
@@ -33,8 +36,6 @@ def discoverHosts ():
         try:
             out = fabi.execute(runCommand, 'hostname', hosts=ip)
             # out = fabi.execute(runCommand, 'hostname', hosts=ip+":2222")
-            print("out")
-            print(out)
             key = list(out)[0]
             value = out[key]
             if 'bbb' in str(value):
@@ -48,10 +49,14 @@ def discoverHosts ():
             print("Wrong ssh key")
             print(e)
 
+    sortedHosts =  OrderedDict(sorted(host2ip.items(), key=lambda item: socket.inet_aton(item[1])))
+    return sortedHosts
 
-    print("hosts")
-    print(host2ip)
-    print(ip2host)
-    print(IPs)
+@fabi.task
+def printHosts(hosts):
+    for ix, host in enumerate(hosts):
+        end = " " if (ix % 2==0) else "\n"
+        print('"%s": "%s",' %(host, hosts[host]), end=end)
 
-discoverHosts()
+sortedHosts = discoverHosts()
+printHosts(sortedHosts)
