@@ -16,6 +16,26 @@ fabi.env.skip_bad_hosts = True
 fabi.env.warn_only = True
 fabi.env.abort_on_prompts=True
 
+def add_swapfile():
+
+    # fop.sudo(cmd %"echo test > test.text")
+    fop.run("tmux new -d -s swap")
+    cmd = "tmux send -t swap '%s' ENTER"
+    fop.run(cmd %"sudo fallocate -l 1G /swapfile")
+    fop.run(cmd %"sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576")
+    fop.run(cmd %"sudo chmod 600 /swapfile")
+    fop.run(cmd %"sudo mkswap /swapfile")
+    fop.run(cmd %"sudo swapon /swapfile")
+    fop.run(cmd %'echo "/swapfile swap swap defaults 0 0" | sudo tee -a  /etc/fstab')
+
+def update():
+    fop.run("tmux new -d -s update")
+    cmd = "tmux send -t update '%s' ENTER"
+    fop.run(cmd %"sudo apt-get update")
+    fop.run(cmd %"sudo apt-get install -y \"riaps-*\"")
+
+
+
 #@fabi.parallel
 def runCommand(command):
 	"""run with fab -R '<role to run command on, e.g c2_1>' runCommand:<command to run>
