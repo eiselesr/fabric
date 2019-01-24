@@ -6,8 +6,8 @@ import time
 #fabi.env.password="sd-writer"
 #fabi.env.user="sd-writer"
 
-#fabi.env.password="riaps"
-#fabi.env.user="riaps"
+fabi.env.password="riaps"
+fabi.env.user="riaps"
 
 fabi.env.key_filename = '~/.ssh/cluster_2018_9_10'
 fabi.env.port = 222
@@ -62,7 +62,20 @@ def put(src,dst):
 def pput(src,dst):
 	fabi.put(src, dst)
 
-def LED():
+def LED_ON():
+        fabi.run('echo 1 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr0/brightness')
+        fabi.run('echo 1 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr1/brightness')
         fabi.run('echo 1 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr2/brightness')
-        time.sleep(5)
+        fabi.run('echo 1 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr3/brightness')
+
+def LED_OFF():
+        fabi.run('echo 0 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr0/brightness')
+        fabi.run('echo 0 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr1/brightness')
         fabi.run('echo 0 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr2/brightness')
+        fabi.run('echo 0 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr3/brightness')
+
+def LED_RESTORE():
+	fabi.run('echo heartbeat | sudo tee -a /sys/class/leds/beaglebone\:green\:usr0/trigger')
+	fabi.run('echo mmc0 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr1/trigger')
+	fabi.run('echo none | sudo tee -a /sys/class/leds/beaglebone\:green\:usr2/trigger')
+	fabi.run('echo mmc1 | sudo tee -a /sys/class/leds/beaglebone\:green\:usr3/trigger')
